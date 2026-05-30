@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import csv
 import datetime as dt
 import hmac
 import json
@@ -22,13 +23,26 @@ import openpyxl
 
 
 APP_DIR = Path(__file__).resolve().parent
-DEFAULT_QUINIELA_DIR = APP_DIR.parent
+DEFAULT_QUINIELA_DIR = APP_DIR / "data"
 CACHE_DIR = Path(os.environ.get("QUINIELA_CACHE_DIR", APP_DIR / "cache"))
 STATIC_DIR = APP_DIR / "static"
 API_BASE_URL = "https://v3.football.api-sports.io"
 LEAGUE_ID = 1
 SEASON = 2026
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024
+CSV_FIELDS = [
+    "participant",
+    "file",
+    "sheet",
+    "matchNo",
+    "date",
+    "time",
+    "home",
+    "predHome",
+    "predAway",
+    "away",
+    "venue",
+]
 
 COMPLETED_STATUSES = {"FT", "AET", "PEN"}
 NOT_PLAYED_STATUSES = {"TBD", "NS", "PST", "CANC", "ABD", "AWD", "WO"}
@@ -190,6 +204,7 @@ def find_prediction_rows(worksheet: Any) -> list[int]:
 def read_quinielas(quiniela_dir: Path) -> list[dict[str, Any]]:
     participants: list[dict[str, Any]] = []
     quiniela_dir.mkdir(parents=True, exist_ok=True)
+    participants.extend(read_csv_quinielas(quiniela_dir))
     files = sorted(path for path in quiniela_dir.glob("*.xlsx") if not path.name.startswith("~$"))
 
     for path in files:
@@ -238,6 +253,46 @@ def read_quinielas(quiniela_dir: Path) -> list[dict[str, Any]]:
             participants.append({"name": name, "file": path.name, "predictions": predictions})
 
     return participants
+
+
+def read_csv_quinielas(quiniela_dir: Path) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str], dict[str, Any]] = {}
+    files = sorted(quiniela_dir.glob("*.csv"))
+
+    for path in files:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                participant = str(row.get("participant") or path.stem).strip()
+                source_file = str(row.get("file") or path.name).strip()
+                group_key = (participant, source_file)
+                group = grouped.setdefault(
+                    group_key,
+                    {"name": participant, "file": source_file, "predictions": []},
+                )
+
+                home = row.get("home")
+                away = row.get("away")
+                if not home or not away:
+                    continue
+
+                group["predictions"].append(
+                    {
+                        "matchNo": as_int(row.get("matchNo")),
+                        "date": row.get("date") or None,
+                        "time": row.get("time") or None,
+                        "home": str(home).strip(),
+                        "away": str(away).strip(),
+                        "homeKey": team_key(home),
+                        "awayKey": team_key(away),
+                        "predHome": as_int(row.get("predHome")),
+                        "predAway": as_int(row.get("predAway")),
+                        "venue": row.get("venue") or None,
+                        "sheet": row.get("sheet") or path.stem,
+                    }
+                )
+
+    return list(grouped.values())
 
 
 def cache_path(name: str) -> Path:
