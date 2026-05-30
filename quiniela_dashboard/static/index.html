@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiniela Mundial 2026</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Quiniela Mundial 2026</p>
+        <h1>Posiciones</h1>
+      </div>
+      <div class="actions">
+        <button id="reloadBtn" type="button" title="Leer otra vez los Excel">Recargar Excel</button>
+        <button id="refreshBtn" type="button" title="Actualizar resultados desde API-Football">Actualizar API</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-band" id="statusBand">
+        <span id="apiStatus">Cargando datos...</span>
+        <span id="lastUpdate"></span>
+      </section>
+
+      <section class="panel admin-panel hidden" id="adminPanel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>Subir quiniela</h2>
+          </div>
+        </div>
+        <form id="uploadForm" class="upload-form">
+          <label>
+            Token
+            <input id="adminToken" type="password" autocomplete="current-password" placeholder="ADMIN_TOKEN" />
+          </label>
+          <label>
+            Excel
+            <input id="excelFile" type="file" accept=".xlsx" />
+          </label>
+          <button id="uploadBtn" type="submit">Subir Excel</button>
+          <span id="uploadMessage" class="upload-message"></span>
+        </form>
+      </section>
+
+      <section class="metrics" aria-label="Resumen">
+        <div class="metric">
+          <span>Participantes</span>
+          <strong id="metricParticipants">0</strong>
+        </div>
+        <div class="metric">
+          <span>Partidos leidos</span>
+          <strong id="metricMatches">0</strong>
+        </div>
+        <div class="metric">
+          <span>Predicciones</span>
+          <strong id="metricPredictions">0</strong>
+        </div>
+        <div class="metric">
+          <span>Marcadores exactos</span>
+          <strong id="metricExact">0</strong>
+        </div>
+      </section>
+
+      <section class="layout">
+        <div class="panel standings-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Ranking</p>
+              <h2>Tabla general</h2>
+            </div>
+            <span class="pill">3 exacto - 1 tendencia</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Participante</th>
+                  <th>Pts</th>
+                  <th>Exactos</th>
+                  <th>Tend.</th>
+                  <th>Fallos</th>
+                  <th>Pend.</th>
+                  <th>Efect.</th>
+                </tr>
+              </thead>
+              <tbody id="standingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="panel detail-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Detalle</p>
+              <h2 id="detailTitle">Selecciona un participante</h2>
+            </div>
+          </div>
+          <div id="participantDetail" class="detail-empty">Haz clic en una fila de la tabla para ver sus aciertos partido por partido.</div>
+        </aside>
+      </section>
+
+      <section class="panel matches-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Resultados</p>
+            <h2>Partidos vinculados</h2>
+          </div>
+          <div class="filters" role="group" aria-label="Filtros de partidos">
+            <button class="filter active" data-filter="all" type="button">Todos</button>
+            <button class="filter" data-filter="played" type="button">Jugados</button>
+            <button class="filter" data-filter="pending" type="button">Pendientes</button>
+            <button class="filter" data-filter="unmatched" type="button">Sin vincular</button>
+          </div>
+        </div>
+        <div id="matchesGrid" class="matches-grid"></div>
+      </section>
+    </main>
+
+    <template id="matchCardTemplate">
+      <article class="match-card">
+        <div class="match-meta">
+          <span class="round"></span>
+          <span class="status"></span>
+        </div>
+        <div class="teams">
+          <div class="team home">
+            <img alt="" />
+            <span></span>
+          </div>
+          <strong class="score"></strong>
+          <div class="team away">
+            <span></span>
+            <img alt="" />
+          </div>
+        </div>
+        <div class="match-sub"></div>
+      </article>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
