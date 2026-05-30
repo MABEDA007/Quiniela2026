@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: quiniela-mundial-2026
+    runtime: python
+    plan: free
+    buildCommand: pip install -r quiniela_dashboard/requirements.txt
+    startCommand: python quiniela_dashboard/app.py --host 0.0.0.0 --port $PORT --quiniela-dir /var/data/quinielas
+    healthCheckPath: /health
+    disk:
+      name: quiniela-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: API_FOOTBALL_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: QUINIELA_CACHE_DIR
+        value: /var/data/cache
