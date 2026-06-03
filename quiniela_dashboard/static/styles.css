@@ -39,7 +39,7 @@ button {
   cursor: pointer;
   font: inherit;
   font-weight: 650;
-  min-height: 38px;
+  min-height: 36px;
   padding: 0 14px;
 }
 
@@ -63,9 +63,9 @@ button:disabled {
   display: flex;
   gap: 18px;
   justify-content: space-between;
-  min-height: 188px;
+  min-height: 132px;
   overflow: hidden;
-  padding: 28px clamp(16px, 4vw, 44px);
+  padding: 22px clamp(16px, 4vw, 44px);
   position: relative;
 }
 
@@ -76,7 +76,7 @@ button:disabled {
 }
 
 .topbar h1 {
-  font-size: clamp(34px, 5vw, 62px);
+  font-size: clamp(32px, 5vw, 54px);
   line-height: 1;
   max-width: 780px;
   text-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
@@ -97,23 +97,6 @@ button:disabled {
   text-transform: uppercase;
 }
 
-.host-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.host-strip span {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
-  padding: 7px 12px;
-}
-
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -129,40 +112,8 @@ button:disabled {
   color: #ffffff;
 }
 
-.tournament-mark {
-  align-items: center;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  display: grid;
-  gap: 9px;
-  justify-items: center;
-  min-width: 104px;
-  padding: 14px 16px;
-  position: relative;
-  z-index: 1;
-}
-
-.tournament-mark strong {
-  color: #ffffff;
-  font-size: 24px;
-  letter-spacing: 0;
-}
-
-.ball {
-  background:
-    radial-gradient(circle at 50% 50%, #101828 0 18%, transparent 19%),
-    conic-gradient(from 18deg, #101828 0 16%, #ffffff 16% 28%, #101828 28% 43%, #ffffff 43% 56%, #101828 56% 72%, #ffffff 72% 84%, #101828 84% 100%);
-  border: 3px solid #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-  display: block;
-  height: 54px;
-  width: 54px;
-}
-
 main {
-  padding: 20px clamp(14px, 3vw, 34px) 42px;
+  padding: 14px clamp(12px, 3vw, 34px) 34px;
 }
 
 .status-band {
@@ -175,9 +126,9 @@ main {
   display: flex;
   gap: 12px;
   justify-content: space-between;
-  margin-bottom: 16px;
-  min-height: 44px;
-  padding: 10px 14px;
+  margin-bottom: 12px;
+  min-height: 38px;
+  padding: 8px 12px;
 }
 
 .status-band.warning {
@@ -188,9 +139,9 @@ main {
 
 .metrics {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .hidden {
@@ -207,8 +158,8 @@ main {
 
 .metric {
   border-top: 4px solid var(--field);
-  min-height: 92px;
-  padding: 16px;
+  min-height: 76px;
+  padding: 12px;
   position: relative;
 }
 
@@ -232,7 +183,7 @@ main {
 
 .metric strong {
   display: block;
-  font-size: 34px;
+  font-size: 30px;
   letter-spacing: 0;
   margin-top: 8px;
 }
@@ -241,7 +192,7 @@ main {
   display: grid;
   gap: 16px;
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .admin-panel {
@@ -304,12 +255,12 @@ main {
   display: flex;
   gap: 14px;
   justify-content: space-between;
-  min-height: 72px;
-  padding: 16px;
+  min-height: 58px;
+  padding: 12px 14px;
 }
 
 .panel h2 {
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .pill {
@@ -329,14 +280,14 @@ main {
 
 table {
   border-collapse: collapse;
-  min-width: 740px;
+  min-width: 640px;
   width: 100%;
 }
 
 th,
 td {
   border-bottom: 1px solid #edf1f5;
-  padding: 12px 14px;
+  padding: 8px 10px;
   text-align: left;
 }
 
@@ -369,9 +320,9 @@ th.numeric {
   color: var(--field-deep);
   display: inline-flex;
   font-weight: 800;
-  height: 28px;
+  height: 24px;
   justify-content: center;
-  width: 28px;
+  width: 24px;
 }
 
 .participant-name {
@@ -396,12 +347,12 @@ tbody tr:nth-child(3) .rank {
 .file-name {
   color: var(--muted);
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 2px;
 }
 
 .detail-panel {
-  min-height: 420px;
+  min-height: 360px;
 }
 
 .detail-empty {
@@ -411,10 +362,10 @@ tbody tr:nth-child(3) .rank {
 
 .detail-list {
   display: grid;
-  gap: 10px;
-  max-height: 530px;
+  gap: 7px;
+  max-height: 430px;
   overflow: auto;
-  padding: 12px;
+  padding: 10px;
 }
 
 .prediction-row {
@@ -422,9 +373,9 @@ tbody tr:nth-child(3) .rank {
   border: 1px solid #e3eee8;
   border-radius: 8px;
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: 1fr auto;
-  padding: 10px;
+  padding: 8px 10px;
 }
 
 .prediction-row strong {
@@ -433,6 +384,7 @@ tbody tr:nth-child(3) .rank {
 
 .prediction-row small {
   color: var(--muted);
+  display: none;
 }
 
 .badge {
@@ -472,8 +424,8 @@ tbody tr:nth-child(3) .rank {
 }
 
 .filter {
-  min-height: 34px;
-  padding: 0 11px;
+  min-height: 32px;
+  padding: 0 10px;
 }
 
 .filter.active {
@@ -484,9 +436,9 @@ tbody tr:nth-child(3) .rank {
 
 .matches-grid {
   display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  padding: 14px;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  padding: 10px;
 }
 
 .match-card {
@@ -495,8 +447,8 @@ tbody tr:nth-child(3) .rank {
   border: 1px solid #e3eee8;
   border-radius: 8px;
   box-shadow: 0 8px 22px rgba(20, 44, 34, 0.07);
-  min-height: 132px;
-  padding: 12px;
+  min-height: 112px;
+  padding: 10px;
   position: relative;
 }
 
@@ -529,9 +481,9 @@ tbody tr:nth-child(3) .rank {
 .teams {
   align-items: center;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  margin: 16px 0;
+  margin: 12px 0;
 }
 
 .team {
@@ -573,10 +525,10 @@ tbody tr:nth-child(3) .rank {
   border-radius: 6px;
   color: #ffffff;
   display: inline-flex;
-  font-size: 16px;
+  font-size: 15px;
   justify-content: center;
-  min-width: 54px;
-  padding: 7px 9px;
+  min-width: 48px;
+  padding: 6px 8px;
 }
 
 .empty-state {
@@ -588,12 +540,13 @@ tbody tr:nth-child(3) .rank {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
-    min-height: 260px;
+    gap: 12px;
+    min-height: 148px;
   }
 
   .status-band {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
   .actions,
@@ -601,13 +554,6 @@ tbody tr:nth-child(3) .rank {
     justify-content: flex-start;
   }
 
-  .tournament-mark {
-    align-items: center;
-    display: flex;
-    min-width: 0;
-  }
-
-  .metrics,
   .layout,
   .upload-form {
     grid-template-columns: 1fr;
@@ -619,20 +565,116 @@ tbody tr:nth-child(3) .rank {
 }
 
 @media (max-width: 560px) {
+  main {
+    padding: 10px 8px 24px;
+  }
+
+  .topbar {
+    min-height: 130px;
+    padding: 16px 14px;
+  }
+
   .topbar h1 {
-    font-size: 38px;
+    font-size: 34px;
   }
 
   .metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .metric {
+    border-top-width: 3px;
+    min-height: 58px;
+    padding: 7px 6px;
+  }
+
+  .metric span {
+    font-size: 10px;
+    line-height: 1.15;
+  }
+
+  .metric strong {
+    font-size: 22px;
+    margin-top: 6px;
   }
 
   .panel-head {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+    min-height: 48px;
+    padding: 10px 12px;
   }
 
   .matches-grid {
     grid-template-columns: 1fr;
+  }
+
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  th,
+  td {
+    font-size: 12px;
+    padding: 7px 6px;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5),
+  th:nth-child(6),
+  td:nth-child(6),
+  th:nth-child(8),
+  td:nth-child(8) {
+    display: none;
+  }
+
+  .file-name {
+    display: none;
+  }
+
+  .participant-name {
+    display: block;
+    max-width: 138px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .detail-list {
+    max-height: 380px;
+  }
+
+  .prediction-row {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 7px 8px;
+  }
+
+  .prediction-row strong {
+    display: block;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .match-card {
+    min-height: 98px;
+    padding: 9px;
+  }
+
+  .match-sub {
+    font-size: 11px;
   }
 }

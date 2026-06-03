@@ -11,19 +11,9 @@
       <div class="topbar-copy">
         <p class="eyebrow">Quiniela Copa Mundial FIFA 2026</p>
         <h1>Tabla de posiciones</h1>
-        <div class="host-strip" aria-label="Sedes 2026">
-          <span>Mexico</span>
-          <span>Canada</span>
-          <span>Estados Unidos</span>
-        </div>
       </div>
       <div class="actions">
-        <button id="reloadBtn" type="button" title="Leer otra vez los Excel">Recargar Excel</button>
-        <button id="refreshBtn" type="button" title="Actualizar resultados desde API-Football">Actualizar API</button>
-      </div>
-      <div class="tournament-mark" aria-hidden="true">
-        <span class="ball"></span>
-        <strong>2026</strong>
+        <button id="refreshBtn" type="button" title="Actualizar resultados desde API-Football">Actualizar</button>
       </div>
     </header>
 
@@ -116,13 +106,12 @@
         <div class="panel-head">
           <div>
             <p class="eyebrow">Resultados</p>
-            <h2>Partidos vinculados</h2>
+            <h2>Partidos</h2>
           </div>
           <div class="filters" role="group" aria-label="Filtros de partidos">
             <button class="filter active" data-filter="all" type="button">Todos</button>
             <button class="filter" data-filter="played" type="button">Jugados</button>
             <button class="filter" data-filter="pending" type="button">Pendientes</button>
-            <button class="filter" data-filter="unmatched" type="button">Sin vincular</button>
           </div>
         </div>
         <div id="matchesGrid" class="matches-grid"></div>

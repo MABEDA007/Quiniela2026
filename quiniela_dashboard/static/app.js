@@ -11,9 +11,10 @@ const formatter = new Intl.DateTimeFormat("es-MX", {
 const $ = (selector) => document.querySelector(selector);
 
 function setLoading(isLoading) {
-  $("#reloadBtn").disabled = isLoading;
-  $("#refreshBtn").disabled = isLoading;
-  $("#uploadBtn").disabled = isLoading;
+  const refreshBtn = $("#refreshBtn");
+  const uploadBtn = $("#uploadBtn");
+  if (refreshBtn) refreshBtn.disabled = isLoading;
+  if (uploadBtn) uploadBtn.disabled = isLoading;
 }
 
 async function loadState(refresh = false) {
@@ -52,9 +53,8 @@ function renderStatus() {
   const statusBand = $("#statusBand");
   statusBand.classList.toggle("warning", Boolean(api.warning));
 
-  const source = api.source === "api-football" ? "API-Football" : api.source || "sin datos";
-  $("#apiStatus").textContent = api.warning || `Resultados desde ${source}.`;
-  $("#lastUpdate").textContent = state.generatedAt ? `Dashboard: ${state.generatedAt}` : "";
+  $("#apiStatus").textContent = "Actualizado a:";
+  $("#lastUpdate").textContent = state.generatedAt ? formatGeneratedAt(state.generatedAt) : "";
 }
 
 function renderAdmin() {
@@ -131,7 +131,7 @@ function renderParticipantDetail() {
     row.innerHTML = `
       <div>
         <strong>${prediction.home} ${prediction.predHome}-${prediction.predAway} ${prediction.away}</strong>
-        <small>${actual ? `Resultado: ${actual}` : "Resultado pendiente o sin vincular"}</small>
+        <small>${actual ? actual : ""}</small>
       </div>
       <span class="badge ${prediction.score.status}">${prediction.score.label}</span>
     `;
@@ -188,6 +188,7 @@ function fallbackFixturesFromPredictions() {
       map.set(key, {
         id: key,
         date: prediction.date,
+        time: prediction.time,
         localDate: prediction.date,
         round: prediction.sheet,
         statusShort: "Sin API",
@@ -220,12 +221,31 @@ function scoreText(fixture) {
 
 function matchSubText(fixture) {
   const parts = [];
-  if (fixture.date) {
-    const date = new Date(fixture.date);
-    if (!Number.isNaN(date.getTime())) parts.push(formatter.format(date));
-  }
+  const dateText = formatFixtureDate(fixture);
+  if (dateText) parts.push(dateText);
   if (fixture.venue) parts.push(fixture.city ? `${fixture.venue}, ${fixture.city}` : fixture.venue);
   return parts.join(" - ");
+}
+
+function formatFixtureDate(fixture) {
+  const raw = fixture.date || fixture.localDate;
+  if (!raw) return "";
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const [year, month, day] = raw.split("-").map(Number);
+    const [hour = 0, minute = 0] = String(fixture.time || "").split(":").map(Number);
+    const date = new Date(year, month - 1, day, hour, minute);
+    return formatter.format(date);
+  }
+
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? "" : formatter.format(date);
+}
+
+function formatGeneratedAt(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return formatter.format(date);
 }
 
 function fileToBase64(file) {
@@ -287,7 +307,6 @@ document.querySelectorAll(".filter").forEach((button) => {
   });
 });
 
-$("#reloadBtn").addEventListener("click", () => loadState(false));
 $("#refreshBtn").addEventListener("click", () => loadState(true));
 $("#uploadForm").addEventListener("submit", uploadExcel);
 
