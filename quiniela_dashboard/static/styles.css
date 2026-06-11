@@ -263,15 +263,27 @@ main {
   font-size: 19px;
 }
 
-.pill {
+.legend {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legend span {
   background: #fff4cf;
   border: 1px solid #f0cc69;
   border-radius: 999px;
-  color: #7a4f03;
+  color: #6c4a05;
   font-size: 12px;
-  font-weight: 700;
-  padding: 6px 10px;
+  font-weight: 800;
+  padding: 5px 9px;
   white-space: nowrap;
+}
+
+.legend b {
+  font-size: 14px;
+  margin-right: 3px;
 }
 
 .table-wrap {
@@ -280,7 +292,7 @@ main {
 
 table {
   border-collapse: collapse;
-  min-width: 640px;
+  min-width: 500px;
   width: 100%;
 }
 
@@ -387,12 +399,31 @@ tbody tr:nth-child(3) .rank {
   display: none;
 }
 
-.badge {
+.badge,
+.result-symbol {
   align-self: start;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
   padding: 5px 9px;
+}
+
+.result-symbol {
+  align-items: center;
+  background: #f2f4f7;
+  color: #475467;
+  display: inline-flex;
+  font-size: 17px;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+}
+
+.result-symbol.exact,
+.result-symbol.trend,
+.result-symbol.miss {
+  background: transparent;
 }
 
 .badge.exact {
@@ -625,15 +656,6 @@ tbody tr:nth-child(3) .rank {
     padding: 7px 6px;
   }
 
-  th:nth-child(5),
-  td:nth-child(5),
-  th:nth-child(6),
-  td:nth-child(6),
-  th:nth-child(8),
-  td:nth-child(8) {
-    display: none;
-  }
-
   .file-name {
     display: none;
   }
@@ -667,6 +689,12 @@ tbody tr:nth-child(3) .rank {
   .badge {
     font-size: 11px;
     padding: 4px 8px;
+  }
+
+  .result-symbol {
+    font-size: 16px;
+    height: 24px;
+    width: 24px;
   }
 
   .match-card {

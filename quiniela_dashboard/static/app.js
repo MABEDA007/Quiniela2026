@@ -32,8 +32,7 @@ async function loadState(refresh = false) {
     }
     render();
   } catch (error) {
-    $("#apiStatus").textContent = `No pude cargar el dashboard: ${error}`;
-    $("#statusBand").classList.add("warning");
+    console.error("No pude cargar el dashboard:", error);
   } finally {
     setLoading(false);
   }
@@ -49,12 +48,7 @@ function render() {
 }
 
 function renderStatus() {
-  const api = state.api || {};
-  const statusBand = $("#statusBand");
-  statusBand.classList.toggle("warning", Boolean(api.warning));
-
-  $("#apiStatus").textContent = "Actualizado a:";
-  $("#lastUpdate").textContent = state.generatedAt ? formatGeneratedAt(state.generatedAt) : "";
+  return;
 }
 
 function renderAdmin() {
@@ -64,9 +58,10 @@ function renderAdmin() {
 
 function renderMetrics() {
   const exact = state.participants.reduce((sum, item) => sum + item.stats.exact, 0);
+  const summary = matchSummary();
   $("#metricParticipants").textContent = state.participants.length;
-  $("#metricMatches").textContent = state.fixtures.length || uniqueMatchCount();
-  $("#metricPredictions").textContent = state.predictions.length;
+  $("#metricPlayed").textContent = summary.played;
+  $("#metricPending").textContent = summary.pending;
   $("#metricExact").textContent = exact;
 }
 
@@ -80,7 +75,7 @@ function renderStandings() {
   body.innerHTML = "";
 
   if (!state.participants.length) {
-    body.innerHTML = `<tr><td colspan="8" class="empty-state">No encontre archivos .xlsx de quiniela en la carpeta.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">No encontre archivos .xlsx de quiniela en la carpeta.</td></tr>`;
     return;
   }
 
@@ -97,8 +92,6 @@ function renderStandings() {
       <td class="numeric">${participant.stats.exact}</td>
       <td class="numeric">${participant.stats.trend}</td>
       <td class="numeric">${participant.stats.miss}</td>
-      <td class="numeric">${participant.stats.pending + participant.stats.unmatched}</td>
-      <td class="numeric">${participant.stats.effectiveness}%</td>
     `;
     row.addEventListener("click", () => {
       selectedParticipant = participant.name;
@@ -133,7 +126,7 @@ function renderParticipantDetail() {
         <strong>${prediction.home} ${prediction.predHome}-${prediction.predAway} ${prediction.away}</strong>
         <small>${actual ? actual : ""}</small>
       </div>
-      <span class="badge ${prediction.score.status}">${prediction.score.label}</span>
+      <span class="result-symbol ${prediction.score.status}" title="${prediction.score.label}">${resultSymbol(prediction.score.status)}</span>
     `;
     container.appendChild(row);
   }
@@ -154,8 +147,8 @@ function renderMatches() {
   const filtered = fixtures.filter((fixture) => {
     const status = fixture.statusShort;
     const hasScore = fixture.homeGoals !== null && fixture.homeGoals !== undefined && fixture.awayGoals !== null && fixture.awayGoals !== undefined;
-    if (activeFilter === "played") return hasScore && !["NS", "TBD"].includes(status);
-    if (activeFilter === "pending") return !hasScore || ["NS", "TBD"].includes(status);
+    if (activeFilter === "played") return fixtureIsPlayed(fixture);
+    if (activeFilter === "pending") return !fixtureIsPlayed(fixture);
     if (activeFilter === "unmatched") return unmatchedPredictionCount(fixture) > 0;
     return true;
   });
@@ -210,6 +203,32 @@ function unmatchedPredictionCount(fixture) {
     const sameTeams = prediction.homeKey === fixture.homeKey && prediction.awayKey === fixture.awayKey;
     return sameTeams && prediction.score.status === "unmatched";
   }).length;
+}
+
+function allFixtures() {
+  return state.fixtures.length ? state.fixtures : fallbackFixturesFromPredictions();
+}
+
+function fixtureIsPlayed(fixture) {
+  const status = fixture.statusShort;
+  const hasScore = fixture.homeGoals !== null && fixture.homeGoals !== undefined && fixture.awayGoals !== null && fixture.awayGoals !== undefined;
+  return hasScore && !["NS", "TBD"].includes(status);
+}
+
+function matchSummary() {
+  const fixtures = allFixtures();
+  const played = fixtures.filter(fixtureIsPlayed).length;
+  return {
+    played,
+    pending: Math.max(fixtures.length - played, 0),
+  };
+}
+
+function resultSymbol(status) {
+  if (status === "exact") return "🌟";
+  if (status === "trend") return "✅";
+  if (status === "miss") return "❌";
+  return "—";
 }
 
 function scoreText(fixture) {

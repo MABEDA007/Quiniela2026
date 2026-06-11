@@ -18,11 +18,6 @@
     </header>
 
     <main>
-      <section class="status-band" id="statusBand">
-        <span id="apiStatus">Cargando datos...</span>
-        <span id="lastUpdate"></span>
-      </section>
-
       <section class="panel admin-panel hidden" id="adminPanel">
         <div class="panel-head">
           <div>
@@ -50,12 +45,12 @@
           <strong id="metricParticipants">0</strong>
         </div>
         <div class="metric">
-          <span>Partidos leidos</span>
-          <strong id="metricMatches">0</strong>
+          <span>Partidos jugados</span>
+          <strong id="metricPlayed">0</strong>
         </div>
         <div class="metric">
-          <span>Predicciones</span>
-          <strong id="metricPredictions">0</strong>
+          <span>Partidos pendientes</span>
+          <strong id="metricPending">0</strong>
         </div>
         <div class="metric">
           <span>Marcadores exactos</span>
@@ -70,7 +65,11 @@
               <p class="eyebrow">Ranking</p>
               <h2>Tabla general</h2>
             </div>
-            <span class="pill">3 exacto - 1 tendencia</span>
+            <div class="legend" aria-label="Reglas de puntuacion">
+              <span><b>🌟</b> Exacto</span>
+              <span><b>✅</b> Acierto</span>
+              <span><b>❌</b> Fallo</span>
+            </div>
           </div>
           <div class="table-wrap">
             <table>
@@ -79,11 +78,9 @@
                   <th>#</th>
                   <th>Participante</th>
                   <th>Pts</th>
-                  <th>Exactos</th>
-                  <th>Tend.</th>
-                  <th>Fallos</th>
-                  <th>Pend.</th>
-                  <th>Efect.</th>
+                  <th>🌟</th>
+                  <th>✅</th>
+                  <th>❌</th>
                 </tr>
               </thead>
               <tbody id="standingsBody"></tbody>
