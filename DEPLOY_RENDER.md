@@ -13,8 +13,7 @@
 2. En Render, elige `New` -> `Blueprint`.
 3. Conecta el repositorio.
 4. Render detectara `render.yaml`.
-5. Ingresa los secretos solicitados:
-   - `API_FOOTBALL_KEY`: llave de API-Football.
+5. No necesitas llave para resultados: la app usa el scoreboard publico de ESPN.
    - `ADMIN_TOKEN`: opcional en Render gratis. Sirve para pruebas de subida, pero no como almacenamiento permanente.
 6. Espera el deploy.
 7. Abre la URL publica `https://...onrender.com`.

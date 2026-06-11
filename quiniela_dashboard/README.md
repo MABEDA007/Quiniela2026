@@ -1,6 +1,6 @@
 # Dashboard Quiniela Mundial 2026
 
-Aplicacion web para leer quinielas convertidas a CSV, consultar resultados de API-Football y calcular la tabla de posiciones.
+Aplicacion web para leer quinielas convertidas a CSV, consultar resultados desde el scoreboard publico de ESPN y calcular la tabla de posiciones.
 
 ## Flujo recomendado para Render gratis
 
@@ -23,7 +23,6 @@ Despues sube los cambios a GitHub y Render desplegara el dashboard leyendo ese C
 Desde PowerShell:
 
 ```powershell
-$env:API_FOOTBALL_KEY="TU_LLAVE_DE_API_FOOTBALL"
 $env:ADMIN_TOKEN="UNA_CLAVE_PRIVADA_PARA_SUBIR_EXCEL"
 .\quiniela_dashboard\start_dashboard.ps1
 ```
@@ -40,11 +39,8 @@ Tambien puedes abrir `quiniela_dashboard\start_dashboard.bat` con doble clic. De
 
 1. Crea un repositorio GitHub con esta carpeta/proyecto.
 2. En Render, crea un nuevo `Blueprint` o `Web Service` usando `render.yaml`.
-3. Configura estas variables secretas:
-   - `API_FOOTBALL_KEY`: tu llave de API-Football.
-   - `ADMIN_TOKEN`: una clave privada que solo tu conozcas para subir quinielas.
-4. Render creara un disco persistente en `/var/data`, donde se guardaran los Excel y el cache de resultados.
-5. Al terminar el deploy, Render dara una URL publica. Esa URL se puede abrir desde celular o cualquier computadora.
+3. No necesitas configurar llave de API para resultados: la app usa el endpoint publico de ESPN.
+4. Al terminar el deploy, Render dara una URL publica. Esa URL se puede abrir desde celular o cualquier computadora.
 
 Si usas `Blueprint`, Render lee `render.yaml`. En `Blueprint Path` escribe exactamente:
 
@@ -85,4 +81,8 @@ Puntuacion:
 - 1 punto por acertar ganador o empate.
 - 0 puntos por fallar.
 
-La API oficial del Mundial 2026 usa `league=1` y `season=2026`.
+La fuente de resultados es ESPN:
+
+```text
+https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard
+```

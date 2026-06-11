@@ -18,6 +18,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import openpyxl
 
@@ -26,9 +27,10 @@ APP_DIR = Path(__file__).resolve().parent
 DEFAULT_QUINIELA_DIR = APP_DIR / "data"
 CACHE_DIR = Path(os.environ.get("QUINIELA_CACHE_DIR", APP_DIR / "cache"))
 STATIC_DIR = APP_DIR / "static"
-API_BASE_URL = "https://v3.football.api-sports.io"
-LEAGUE_ID = 1
 SEASON = 2026
+ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard"
+ESPN_DATES = "20260611-20260719"
+LOCAL_TZ = ZoneInfo(os.environ.get("QUINIELA_TIMEZONE", "America/Mexico_City"))
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024
 CSV_FIELDS = [
     "participant",
@@ -44,8 +46,8 @@ CSV_FIELDS = [
     "venue",
 ]
 
-COMPLETED_STATUSES = {"FT", "AET", "PEN"}
-NOT_PLAYED_STATUSES = {"TBD", "NS", "PST", "CANC", "ABD", "AWD", "WO"}
+COMPLETED_STATUSES = {"FT", "AET", "PEN", "STATUS_FINAL", "STATUS_FULL_TIME", "STATUS_FINAL_PEN"}
+NOT_PLAYED_STATUSES = {"TBD", "NS", "PST", "CANC", "ABD", "AWD", "WO", "STATUS_SCHEDULED", "STATUS_POSTPONED", "STATUS_CANCELED"}
 
 TEAM_ALIASES = {
     "alemania": "germany",
@@ -309,51 +311,70 @@ def read_json(path: Path) -> dict[str, Any] | None:
         return None
 
 
-def api_get(endpoint: str, params: dict[str, Any], api_key: str) -> dict[str, Any]:
-    query = urllib.parse.urlencode(params)
-    request = urllib.request.Request(
-        f"{API_BASE_URL}/{endpoint}?{query}",
-        headers={"x-apisports-key": api_key, "Accept": "application/json"},
-    )
+def api_get(url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    query = urllib.parse.urlencode(params or {})
+    api_url = f"{url}?{query}" if query else url
+    request = urllib.request.Request(api_url, headers={"Accept": "application/json", "User-Agent": "quiniela-dashboard/1.0"})
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
-def normalize_fixture(raw: dict[str, Any]) -> dict[str, Any]:
-    fixture = raw.get("fixture", {})
-    league = raw.get("league", {})
-    teams = raw.get("teams", {})
-    goals = raw.get("goals", {})
-    status = fixture.get("status") or {}
-    venue = fixture.get("venue") or {}
-    home = teams.get("home") or {}
-    away = teams.get("away") or {}
-    date_value = fixture.get("date")
+def parse_espn_date(value: Any) -> tuple[str | None, str | None]:
+    if not isinstance(value, str):
+        return None, None
+    try:
+        raw = value.replace("Z", "+00:00")
+        date_value = dt.datetime.fromisoformat(raw)
+        local_value = date_value.astimezone(LOCAL_TZ)
+        return date_value.isoformat().replace("+00:00", "Z"), local_value.date().isoformat()
+    except ValueError:
+        return value, value[:10]
+
+
+def espn_competitor(competition: dict[str, Any], home_away: str) -> dict[str, Any]:
+    for competitor in competition.get("competitors", []):
+        if competitor.get("homeAway") == home_away:
+            return competitor
+    return {}
+
+
+def normalize_espn_fixture(raw: dict[str, Any]) -> dict[str, Any]:
+    competition = (raw.get("competitions") or [{}])[0]
+    status = raw.get("status") or competition.get("status") or {}
+    status_type = status.get("type") or {}
+    venue = competition.get("venue") or raw.get("venue") or {}
+    venue_address = venue.get("address") or {}
+    home = espn_competitor(competition, "home")
+    away = espn_competitor(competition, "away")
+    home_team = home.get("team") or {}
+    away_team = away.get("team") or {}
+    date_value, local_date = parse_espn_date(raw.get("date") or competition.get("date"))
 
     return {
-        "id": fixture.get("id"),
+        "id": raw.get("id"),
         "date": date_value,
-        "localDate": date_value[:10] if isinstance(date_value, str) else None,
-        "round": league.get("round"),
-        "leagueLogo": league.get("logo"),
-        "venue": venue.get("name"),
-        "city": venue.get("city"),
-        "statusShort": status.get("short"),
-        "statusLong": status.get("long"),
-        "elapsed": status.get("elapsed"),
-        "home": home.get("name"),
-        "away": away.get("name"),
-        "homeLogo": home.get("logo"),
-        "awayLogo": away.get("logo"),
-        "homeKey": team_key(home.get("name")),
-        "awayKey": team_key(away.get("name")),
-        "homeGoals": goals.get("home"),
-        "awayGoals": goals.get("away"),
+        "localDate": local_date,
+        "round": (raw.get("season") or {}).get("slug"),
+        "leagueLogo": None,
+        "venue": venue.get("fullName") or venue.get("displayName"),
+        "city": venue_address.get("city"),
+        "statusShort": status_type.get("shortDetail") or status_type.get("detail") or status_type.get("name"),
+        "statusLong": status_type.get("description") or status_type.get("name"),
+        "statusState": status_type.get("state"),
+        "completed": bool(status_type.get("completed")),
+        "elapsed": status.get("period"),
+        "home": home_team.get("displayName") or home_team.get("name"),
+        "away": away_team.get("displayName") or away_team.get("name"),
+        "homeLogo": home_team.get("logo"),
+        "awayLogo": away_team.get("logo"),
+        "homeKey": team_key(home_team.get("displayName") or home_team.get("name")),
+        "awayKey": team_key(away_team.get("displayName") or away_team.get("name")),
+        "homeGoals": as_int(home.get("score")),
+        "awayGoals": as_int(away.get("score")),
     }
 
 
 def load_fixtures(refresh: bool = False) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    api_key = os.environ.get("API_FOOTBALL_KEY") or os.environ.get("APISPORTS_KEY")
     path = cache_path("fixtures_2026.json")
     cached = read_json(path)
     cache_age = None
@@ -364,25 +385,15 @@ def load_fixtures(refresh: bool = False) -> tuple[list[dict[str, Any]], dict[str
     if should_use_cache:
         return cached.get("fixtures", []), cached.get("meta", {})
 
-    if not api_key:
-        if cached:
-            meta = cached.get("meta", {})
-            meta["source"] = "cache"
-            meta["warning"] = "No hay API_FOOTBALL_KEY; estoy usando el cache local."
-            return cached.get("fixtures", []), meta
-        return [], {
-            "source": "empty",
-            "warning": "Configura API_FOOTBALL_KEY para descargar resultados desde API-Football.",
-        }
-
     try:
-        data = api_get("fixtures", {"league": LEAGUE_ID, "season": SEASON}, api_key)
-        fixtures = [normalize_fixture(item) for item in data.get("response", [])]
+        data = api_get(ESPN_SCOREBOARD_URL, {"dates": ESPN_DATES, "limit": 200})
+        fixtures = [normalize_espn_fixture(item) for item in data.get("events", [])]
         meta = {
-            "source": "api-football",
+            "source": "espn",
             "fetchedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
             "count": len(fixtures),
-            "endpoint": f"/fixtures?league={LEAGUE_ID}&season={SEASON}",
+            "endpoint": ESPN_SCOREBOARD_URL,
+            "dates": ESPN_DATES,
         }
         path.write_text(json.dumps({"fixtures": fixtures, "meta": meta}, ensure_ascii=False, indent=2), encoding="utf-8")
         return fixtures, meta
@@ -390,9 +401,9 @@ def load_fixtures(refresh: bool = False) -> tuple[list[dict[str, Any]], dict[str
         if cached:
             meta = cached.get("meta", {})
             meta["source"] = "cache"
-            meta["warning"] = f"No pude consultar la API; estoy usando cache local. Detalle: {exc}"
+            meta["warning"] = f"No pude consultar ESPN; estoy usando cache local. Detalle: {exc}"
             return cached.get("fixtures", []), meta
-        return [], {"source": "error", "warning": f"No pude consultar la API: {exc}"}
+        return [], {"source": "error", "warning": f"No pude consultar ESPN: {exc}"}
 
 
 def match_fixture(prediction: dict[str, Any], fixtures: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -518,7 +529,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_json(
                 {
                     "uploadEnabled": bool(admin_token()),
-                    "apiConfigured": bool(os.environ.get("API_FOOTBALL_KEY") or os.environ.get("APISPORTS_KEY")),
+                    "apiConfigured": True,
+                    "apiSource": "espn",
                 }
             )
             return
@@ -612,7 +624,7 @@ def main() -> None:
     server = ThreadingHTTPServer((args.host, args.port), DashboardHandler)
     print(f"Dashboard: http://{args.host}:{args.port}")
     print(f"Leyendo quinielas desde: {DashboardHandler.quiniela_dir}")
-    print("Usa API_FOOTBALL_KEY para actualizar resultados desde API-Football.")
+    print("Resultados desde ESPN public scoreboard.")
     server.serve_forever()
 
 
