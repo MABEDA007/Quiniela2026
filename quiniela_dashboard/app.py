@@ -442,8 +442,9 @@ def score_prediction(prediction: dict[str, Any], fixture: dict[str, Any] | None)
     actual_home = as_int(fixture.get("homeGoals"))
     actual_away = as_int(fixture.get("awayGoals"))
     status = fixture.get("statusShort")
-    is_completed = bool(fixture.get("completed")) or status in COMPLETED_STATUSES
-    if not is_completed or status in NOT_PLAYED_STATUSES or actual_home is None or actual_away is None:
+    state = fixture.get("statusState")
+    has_playable_score = state == "in" or bool(fixture.get("completed")) or status in COMPLETED_STATUSES
+    if not has_playable_score or status in NOT_PLAYED_STATUSES or actual_home is None or actual_away is None:
         return {"points": None, "status": "pending", "label": "Pendiente"}
 
     pred_home = prediction["predHome"]

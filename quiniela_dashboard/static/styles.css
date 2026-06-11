@@ -562,6 +562,11 @@ tbody tr:nth-child(3) .rank {
   padding: 6px 8px;
 }
 
+.score.live {
+  background: var(--gold);
+  color: #ffffff;
+}
+
 .empty-state {
   color: var(--muted);
   padding: 20px;

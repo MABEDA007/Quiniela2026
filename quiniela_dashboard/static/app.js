@@ -133,7 +133,7 @@ function renderParticipantDetail() {
 }
 
 function actualScoreText(fixture) {
-  if (!fixture || fixture.homeGoals === null || fixture.awayGoals === null || fixture.homeGoals === undefined || fixture.awayGoals === undefined) {
+  if (!fixtureIsPlayed(fixture)) {
     return "";
   }
   return `${fixture.home} ${fixture.homeGoals}-${fixture.awayGoals} ${fixture.away}`;
@@ -145,8 +145,6 @@ function renderMatches() {
 
   const fixtures = state.fixtures.length ? state.fixtures : fallbackFixturesFromPredictions();
   const filtered = fixtures.filter((fixture) => {
-    const status = fixture.statusShort;
-    const hasScore = fixture.homeGoals !== null && fixture.homeGoals !== undefined && fixture.awayGoals !== null && fixture.awayGoals !== undefined;
     if (activeFilter === "played") return fixtureIsPlayed(fixture);
     if (activeFilter === "pending") return !fixtureIsPlayed(fixture);
     if (activeFilter === "unmatched") return unmatchedPredictionCount(fixture) > 0;
@@ -168,6 +166,7 @@ function renderMatches() {
     card.querySelector(".home img").src = fixture.homeLogo || "";
     card.querySelector(".away img").src = fixture.awayLogo || "";
     card.querySelector(".score").textContent = scoreText(fixture);
+    card.querySelector(".score").classList.toggle("live", fixtureHasScore(fixture) && !fixtureIsPlayed(fixture));
     card.querySelector(".match-sub").textContent = matchSubText(fixture);
     grid.appendChild(card);
   }
@@ -210,9 +209,20 @@ function allFixtures() {
 }
 
 function fixtureIsPlayed(fixture) {
+  if (!fixture) return false;
   const status = fixture.statusShort;
-  const hasScore = fixture.homeGoals !== null && fixture.homeGoals !== undefined && fixture.awayGoals !== null && fixture.awayGoals !== undefined;
-  return hasScore && !["NS", "TBD"].includes(status);
+  const completedStatuses = new Set(["FT", "AET", "PEN", "STATUS_FINAL", "STATUS_FULL_TIME", "STATUS_FINAL_PEN"]);
+  return fixture.completed === true || completedStatuses.has(status) || (fixture.statusState === "in" && fixtureHasScore(fixture));
+}
+
+function fixtureHasScore(fixture) {
+  return Boolean(
+    fixture &&
+      fixture.homeGoals !== null &&
+      fixture.homeGoals !== undefined &&
+      fixture.awayGoals !== null &&
+      fixture.awayGoals !== undefined
+  );
 }
 
 function matchSummary() {
@@ -232,7 +242,7 @@ function resultSymbol(status) {
 }
 
 function scoreText(fixture) {
-  if (fixture.homeGoals === null || fixture.homeGoals === undefined || fixture.awayGoals === null || fixture.awayGoals === undefined) {
+  if (!fixtureHasScore(fixture)) {
     return "vs";
   }
   return `${fixture.homeGoals} - ${fixture.awayGoals}`;

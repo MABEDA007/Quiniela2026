@@ -8,11 +8,11 @@
       "leagueLogo": null,
       "venue": "Estadio Banorte",
       "city": "Mexico City",
-      "statusShort": "HT",
-      "statusLong": "Halftime",
+      "statusShort": "60'",
+      "statusLong": "Second Half",
       "statusState": "in",
       "completed": false,
-      "elapsed": 1,
+      "elapsed": 2,
       "home": "Mexico",
       "away": "South Africa",
       "homeLogo": "https://a.espncdn.com/i/teamlogos/countries/500/mex.png",
@@ -2291,7 +2291,7 @@
   ],
   "meta": {
     "source": "espn",
-    "fetchedAt": "2026-06-11T20:06:18.754932+00:00",
+    "fetchedAt": "2026-06-11T20:26:45.614816+00:00",
     "count": 104,
     "endpoint": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard",
     "dates": "20260611-20260719"
