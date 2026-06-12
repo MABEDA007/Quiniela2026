@@ -57,6 +57,7 @@ TEAM_ALIASES = {
     "austria": "austria",
     "belgica": "belgium",
     "belgium": "belgium",
+    "bosnia herzegovina": "bosnia and herzegovina",
     "bosnia y herzegovina": "bosnia and herzegovina",
     "bosnia-herzegovina": "bosnia and herzegovina",
     "brasil": "brazil",
@@ -106,6 +107,7 @@ TEAM_ALIASES = {
     "suiza": "switzerland",
     "tunez": "tunisia",
     "turquia": "turkey",
+    "turkiye": "turkey",
     "uruguay": "uruguay",
     "uzbekistan": "uzbekistan",
 }
@@ -311,6 +313,13 @@ def read_json(path: Path) -> dict[str, Any] | None:
         return None
 
 
+def refresh_fixture_keys(fixtures: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    for fixture in fixtures:
+        fixture["homeKey"] = team_key(fixture.get("home"))
+        fixture["awayKey"] = team_key(fixture.get("away"))
+    return fixtures
+
+
 def api_get(url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     query = urllib.parse.urlencode(params or {})
     api_url = f"{url}?{query}" if query else url
@@ -383,7 +392,7 @@ def load_fixtures(refresh: bool = False) -> tuple[list[dict[str, Any]], dict[str
 
     should_use_cache = cached and not refresh and cache_age is not None and cache_age < 900
     if should_use_cache:
-        return cached.get("fixtures", []), cached.get("meta", {})
+        return refresh_fixture_keys(cached.get("fixtures", [])), cached.get("meta", {})
 
     try:
         data = api_get(ESPN_SCOREBOARD_URL, {"dates": ESPN_DATES, "limit": 200})
@@ -402,7 +411,7 @@ def load_fixtures(refresh: bool = False) -> tuple[list[dict[str, Any]], dict[str
             meta = cached.get("meta", {})
             meta["source"] = "cache"
             meta["warning"] = f"No pude consultar ESPN; estoy usando cache local. Detalle: {exc}"
-            return cached.get("fixtures", []), meta
+            return refresh_fixture_keys(cached.get("fixtures", [])), meta
         return [], {"source": "error", "warning": f"No pude consultar ESPN: {exc}"}
 
 
