@@ -74,6 +74,7 @@ TEAM_ALIASES = {
     "cote d ivoire": "ivory coast",
     "croacia": "croatia",
     "curacao": "curacao",
+    "curazao": "curacao",
     "ecuador": "ecuador",
     "egipto": "egypt",
     "escocia": "scotland",
